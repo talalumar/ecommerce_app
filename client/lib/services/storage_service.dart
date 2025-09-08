@@ -3,13 +3,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class StorageService {
   static const _storage = FlutterSecureStorage();
 
-  static Future<void> saveTokens({
+  static Future<void> saveDataToStorage({
   required String accessToken,
   required String refreshToken,
+  required String userEmail,
   }) async {
   await Future.wait([
   _storage.write(key: "accessToken", value: accessToken),
   _storage.write(key: "refreshToken", value: refreshToken),
+    _storage.write(key: "userEmail", value: userEmail),
   ]);
   }
 
@@ -22,10 +24,15 @@ class StorageService {
     return await _storage.read(key: "refreshToken");
   }
 
+  static Future<String?> getUserEmail() async {
+    return await _storage.read(key: "userEmail");
+  }
+
   static Future<void> deleteTokens() async {
     await Future.wait([
       _storage.delete(key: "accessToken"),
       _storage.delete(key: "refreshToken"),
+      _storage.delete(key: "userEmail"),
     ]);
   }
 

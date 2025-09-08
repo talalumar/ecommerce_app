@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/storage_service.dart';
 
-class AuthProvider with ChangeNotifier {
+class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   String? _accessToken;
@@ -14,6 +14,14 @@ class AuthProvider with ChangeNotifier {
   String? get accessToken => _accessToken;
   String? get refreshToken => _refreshToken;
   String? get userEmail => _userEmail;
+  bool get isLoggedIn => _accessToken != null;
+
+  Future<void> loadUserFromStorage() async {
+    _accessToken = await StorageService.getAccessToken();
+    _refreshToken = await StorageService.getRefreshToken();
+    _userEmail = await StorageService.getUserEmail();
+    notifyListeners();
+  }
 
   // Private setters
   void _setLoading(bool value) {
@@ -135,9 +143,10 @@ class AuthProvider with ChangeNotifier {
 
         _setUserEmail(email);
 
-        await StorageService.saveTokens(
+        await StorageService.saveDataToStorage(
           accessToken: _accessToken!,
           refreshToken: _refreshToken!,
+          userEmail: _userEmail!,
         );
 
         _setError(null);

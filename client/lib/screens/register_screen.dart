@@ -1,6 +1,5 @@
 import 'package:client/screens/verify_otp_screen.dart';
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 

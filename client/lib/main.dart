@@ -1,3 +1,4 @@
+import 'package:client/screens/wrapper_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
@@ -11,11 +12,16 @@ import 'screens/forgotPassword_screen.dart';
 import 'screens/resetPassword_screen.dart';
 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final authProvider = AuthProvider();
+  await authProvider.loadUserFromStorage();
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => authProvider),
       ],
       child: const MyApp(),
     ),
@@ -35,9 +41,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      home: const Wrapper(),
       routes: {
-        '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/verify-otp': (context) => const VerifyOtpScreen(otpType: '',),
