@@ -1,6 +1,8 @@
 import 'package:client/screens/verify_otp_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,26 +18,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
 
   void _registerUser() async {
-    final result = await AuthService.registerRequestApi(
+    final auth = context.read<AuthProvider>();
+
+    final success = await auth.registerRequest(
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
     );
 
-    if (result["success"] == false) {
-      print(Text(result["message"]));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"])),
-      );
-    } else {
+    if (success) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => VerifyOtpScreen(
-            email: _emailController.text.trim(),
             otpType: 'register',
           ),
         ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.errorMessage ?? "Registration failed")),
       );
     }
   }
@@ -128,25 +130,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 30),
 
               // Register Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            Consumer<AuthProvider>(
+                builder: (context, auth, child) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: auth.isLoading ? null : _registerUser,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor: Colors.blue.shade700,
+                      ),
+                      child: auth.isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                        "Continue",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
                     ),
-                    backgroundColor: Colors.blue.shade700,
-                  ),
-                  onPressed: () {
-                    _registerUser();
-                  },
-                  child: const Text(
-                    "Continue",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-              ),
+                  );
+                },
+            ),
               const SizedBox(height: 20),
 
               // Already have account?

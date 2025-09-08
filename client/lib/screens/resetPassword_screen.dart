@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  final String email; // we pass email from previous screen
-
-  const ResetPasswordScreen({super.key, required this.email});
+  const ResetPasswordScreen({super.key});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -15,45 +15,39 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 
-  void _resetPassword() async {
+  void _resetPassword(AuthProvider auth) async {
     final newPassword = _newPasswordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
 
     if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
       return;
     }
 
-    setState(() => _isLoading = true);
+    final success = await auth.resetPassword(newPassword: newPassword);
 
-    // Call backend reset password API
-    final result = await AuthService.resetPasswordApi(
-        email: widget.email,
-        newPassword: newPassword);
-
-    setState(() => _isLoading = false);
-
-    if (result["success"]) {
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"])),
+        SnackBar(
+          content: Text(auth.errorMessage ?? "Password reset successful"),
+        ),
       );
       Navigator.pushReplacementNamed(context, "/login");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"])),
+        SnackBar(content: Text(auth.errorMessage ?? "Something went wrong")),
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +58,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         elevation: 0,
         title: const Text("Reset Password"),
       ),
-      body: SingleChildScrollView( // added scroll if keyboard opens
+      body: SingleChildScrollView(
+        // added scroll if keyboard opens
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,10 +67,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             const SizedBox(height: 20),
             const Text(
               "Create New Password",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -117,24 +109,30 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             const SizedBox(height: 30),
 
             // Submit Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _resetPassword,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            Consumer<AuthProvider>(
+              builder: (context, auth, child) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: auth.isLoading
+                        ? null
+                        : () => _resetPassword(auth),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: auth.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Reset Password",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                   ),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                  "Reset Password",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),

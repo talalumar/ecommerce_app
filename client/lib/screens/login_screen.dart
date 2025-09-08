@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../services/auth_service.dart';
-import '../services/storage_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,23 +12,16 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _rememberMe = false;
   bool _obscurePassword = true;
 
-  void _loginUser() async {
-    final result = await AuthService.loginUserApi(
+
+  void _loginUser(AuthProvider auth) async {
+    final result = await auth.loginUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
     );
 
     if (result["success"] == true) {
-      final data = result["data"];
-
-      // Save access & refresh tokens securely
-      await StorageService.saveTokens(
-        accessToken: data["accessToken"],
-        refreshToken: data["refreshToken"],
-      );
       Navigator.pushReplacementNamed(context, "/home");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,7 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Consumer<AuthProvider>(
+          builder: (context, auth, child) {
+          return SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,10 +132,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     backgroundColor: Colors.blue.shade700,
                   ),
-                  onPressed: () {
-                    _loginUser();
-                  },
-                  child: const Text(
+                  onPressed: auth.isLoading
+                      ? null
+                      : () => _loginUser(auth),
+                  child: auth.isLoading
+                      ? const CircularProgressIndicator(
+                    color: Colors.white,
+                  )
+                      : const Text(
                     "Sign In",
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
@@ -167,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-        ),
+        );},),
       ),
     );
   }

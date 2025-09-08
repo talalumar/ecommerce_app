@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:client/services/storage_service.dart';
 import 'package:http/http.dart' as http;
-import '../config.dart';
+import '../config/config.dart';
 
 class AuthService {
   static Future<Map<String, dynamic>> registerRequestApi({

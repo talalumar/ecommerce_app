@@ -1,11 +1,11 @@
-import 'package:client/screens/resetPassword_screen.dart';
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import 'resetPassword_screen.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
-  final String email;
   final String otpType;
-  const VerifyOtpScreen({required this.email, required this.otpType});
+  const VerifyOtpScreen({required this.otpType});
 
   @override
   State<VerifyOtpScreen> createState() => _VerifyOtpScreenState();
@@ -23,6 +23,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   }
 
   void _verifyOtp() async {
+    final auth = context.read<AuthProvider>();
     String otp = _otpControllers.map((e) => e.text).join();
 
     if (otp.length != 6) {
@@ -32,75 +33,51 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
       return;
     }
 
-    // Map<String, dynamic> result;
+    bool success = false;
+
 
     if (widget.otpType == "register") {
-        final result = await AuthService.verifyRegisterOtpApi(
-          email: widget.email,
-          otp: otp,
+      success = await auth.verifyRegisterOtp(otp: otp);
+      if (success) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } else if (widget.otpType == "forgotPassword") {
+      success = await auth.verifyForgotPasswordOtp(
+        otp: otp,
+      );
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ResetPasswordScreen(),
+          ),
         );
-        if (result["success"] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("OTP Verified Successfully")),
-          );
-          Navigator.pushReplacementNamed(context, '/login');
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result["message"] ?? "Invalid OTP")),
-          );
-        }
+      }
     }
 
-      if (widget.otpType == "forgotPassword") {
-          final result = await AuthService.verifyForgotPasswordOtpApi(
-            email: widget.email,
-            otp: otp,
-          );
-
-          if (result["success"] == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("OTP Verified Successfully")),
-            );
-            Navigator.pushReplacement(
-                context,
-              MaterialPageRoute(
-                builder: (context) => ResetPasswordScreen(
-                  email: widget.email,
-                ),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result["message"] ?? "Invalid OTP")),
-            );
-          }
+    if (!success && auth.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.errorMessage!)),
+      );
     }
   }
 
-  void _resendOtp() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Resending OTP...")),
-    );
 
-    Map<String, dynamic> result;
+
+
+  void _resendOtp() async {
+    final auth = context.read<AuthProvider>();
+    bool success = false;
 
     if (widget.otpType == "register") {
-      result = await AuthService.resendRegisterOtpApi(widget.email);
+      success = await auth.resendRegisterOtp();
     } else if (widget.otpType == "forgotPassword") {
-      result = await AuthService.requestForgotPasswordApi(widget.email);
-    } else {
-      return;
+      success = await auth.resendForgotPasswordOtp();
     }
 
-    if (result["success"] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"] ?? "OTP sent successfully")),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"] ?? "Failed to resend OTP")),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(success ? "OTP sent successfully" : auth.errorMessage ?? "Failed to resend OTP")),
+    );
   }
 
 
@@ -164,32 +141,35 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
               const SizedBox(height: 40),
 
               // Verify Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    backgroundColor: Colors.blue.shade700,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: auth.isLoading ? null : () => _verifyOtp(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade700,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: auth.isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text("Verify", style: TextStyle(color: Colors.white)),
                     ),
-                  ),
-                  onPressed: _verifyOtp,
-                  child: const Text(
-                    "Verify",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
+                  );
+                },
               ),
 
               const SizedBox(height: 20),
 
               // Resend OTP
-              TextButton(
-                onPressed: () {
-                  _resendOtp();
+              Consumer<AuthProvider>(
+                builder: (context, auth, child) {
+                  return TextButton(
+                    onPressed: auth.isLoading ? null : () =>
+                        _resendOtp(),
+                    child: const Text("Resend OTP"),
+                  );
                 },
-                child: const Text("Resend OTP"),
               ),
             ],
           ),
