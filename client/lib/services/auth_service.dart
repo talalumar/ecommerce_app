@@ -78,14 +78,12 @@ class AuthService {
   }
 
 
-  static Future<Map<String, dynamic>> logoutApi(String accessToken) async {
+  static Future<Map<String, dynamic>> logoutApi(email) async {
     try {
       final response = await http.post(
         Uri.parse(logout),
-        headers: {
-          "Authorization": "Bearer $accessToken",
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email}),
       );
 
       if (response.statusCode == 200) {
@@ -206,6 +204,30 @@ class AuthService {
         "success": false,
         "message": "Error: $e",
       };
+    }
+  }
+
+
+  // Refresh Access Token
+  static Future<Map<String, dynamic>> refreshAccessTokenApi(String refreshToken) async {
+    final url = Uri.parse(refreshAccessToken);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"refreshToken": refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {"success": true, "data": data};
+      } else {
+        final error = jsonDecode(response.body);
+        return {"success": false, "message": error["message"] ?? "Failed to refresh token"};
+      }
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
     }
   }
 

@@ -143,11 +143,11 @@ class AuthProvider extends ChangeNotifier {
 
         _setUserEmail(email);
 
-        await StorageService.saveDataToStorage(
+        await StorageService.saveTokens(
           accessToken: _accessToken!,
           refreshToken: _refreshToken!,
-          userEmail: _userEmail!,
         );
+        await StorageService.saveUserEmail(_userEmail!);
 
         _setError(null);
       } else {
@@ -261,36 +261,62 @@ class AuthProvider extends ChangeNotifier {
   }
 
 
+  /// Refresh Access Token
+  Future<String?> refreshAccessToken() async {
+    try {
+      if (_refreshToken == null) return null;
+
+      final response = await AuthService.refreshAccessTokenApi(_refreshToken!);
+
+      if (response["success"] == true &&
+          response["data"]?["accessToken"] != null &&
+          response["data"]?["refreshToken"] != null) {
+
+        _setTokens(
+          response["data"]["accessToken"],
+          response["data"]["refreshToken"],
+        );
+
+        await StorageService.saveTokens(
+          accessToken: _accessToken!,
+          refreshToken: _refreshToken!,
+        );
+
+        return _accessToken;
+      } else {
+        _setError(response["message"]);
+        return null;
+      }
+    } catch (e) {
+      _setError("Error refreshing token: $e");
+      return null;
+    }
+  }
+
+
+
   /// Logout
   Future<bool> logoutUser() async {
     try {
-      if (_accessToken != null) {
-        final result = await AuthService.logoutApi(_accessToken!);
+      final result = await AuthService.logoutApi(_userEmail);
 
-        if (result["success"]) {
-          await StorageService.deleteTokens();
-          _accessToken = null;
-          _refreshToken = null;
-          _userEmail = null;
-          notifyListeners();
-          return true;
-        } else {
-          _setError(result["message"] ?? "Logout failed");
-          return false;
-        }
-      } else {
+      if (result["success"]) {
         await StorageService.deleteTokens();
         _accessToken = null;
         _refreshToken = null;
         _userEmail = null;
         notifyListeners();
         return true;
+      } else {
+        _setError(result["message"] ?? "Logout failed");
+        return false;
       }
     } catch (e) {
       _setError("Error: $e");
       return false;
     }
   }
+
 
 
 }

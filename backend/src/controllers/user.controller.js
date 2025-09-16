@@ -156,26 +156,25 @@ const loginUser = asyncHandler(async (req, res) => {
     ))
 })
 
-const logoutUser = asyncHandler(async(req, res) => {
+const logoutUser = asyncHandler(async (req, res) => {
+  const { email } = req.body;
 
-     if (!req.user || !req.user._id) {
-    throw new ApiError(401, "Unauthorized request");
+  if (!email) {
+    throw new ApiError(400, "Email is required to logout");
   }
 
-    await User.findByIdAndUpdate(
-        req.user._id,
-        {
-           $unset: {refreshToken: 1} 
-        },
-        {
-            new: true,
-        }
-    )
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return res.status(200)
-    .json(new ApiResponse(200, {}, "User logged out successfully"))
+  user.refreshToken = undefined;
+  await user.save();
 
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
 
 const refreshAccessToken = asyncHandler(async (req, res)=> {
     const incomingRefreshToken = req.body.refreshToken
