@@ -1,3 +1,4 @@
+import 'providers/product_provider.dart';
 import 'package:client/screens/wrapper_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,8 @@ import 'screens/verify_otp_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/forgotPassword_screen.dart';
 import 'screens/resetPassword_screen.dart';
+import 'screens/addProduct_screen.dart';
+import 'screens/productDetails_screen.dart';
 
 
 void main() async {
@@ -22,6 +25,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => authProvider),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
       ],
       child: const MyApp(),
     ),
@@ -49,6 +53,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/reset-password': (context) => const ResetPasswordScreen(),
+        "/addProduct": (context) => const AddProductScreen(),
+        "/productDetails": (_) => const ProductDetailsScreen(),
       },
     );
   }

@@ -1,4 +1,4 @@
-final baseUrl = 'http://192.168.1.10:2000/api/v1';
+final baseUrl = 'http://192.168.1.12:2000/api/v1';
 
 final registerRequest = '$baseUrl/users/register/request';
 final registerVerify = '$baseUrl/users/register/verify';
@@ -9,4 +9,9 @@ final requestForgotPassword = '$baseUrl/users/forgot-password/request';
 final verifyForgotPassword = '$baseUrl/users/forgot-password/verify';
 final resetForgotPassword = '$baseUrl/users/forgot-password/reset';
 final refreshAccessToken = '$baseUrl/users/refresh';
+
+final addProduct = '$baseUrl/products/add';
+final getProducts = '$baseUrl/products/get';
+final updateProduct = '$baseUrl/products/update';
+final deleteProduct = '$baseUrl/products/delete';
 

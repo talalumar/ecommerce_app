@@ -1,6 +1,8 @@
+import 'package:client/screens/product_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/product_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,6 +28,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<ProductProvider>().fetchProducts();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
           return Scaffold(
             appBar: AppBar(
@@ -40,40 +50,132 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.shopping_cart, size: 80, color: Colors.blue),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Welcome to Ecommerce App!",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text("You are successfully logged in."),
-                  const SizedBox(height: 30),
 
-                  // Example button (navigate to products later)
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      // TODO: navigate to products list
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Navigate to Products Page")),
-                      );
-                    },
-                    child: const Text("Browse Products"),
-                  ),
-                ],
+            // This adds the left-side drawer
+            drawer: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.65,
+              child: Drawer(
+                  child: Consumer<AuthProvider>(
+                      builder: (context, auth, _) {
+                        final userRole = auth.userRole;
+                        return ListView(
+                          padding: EdgeInsets.zero,
+                          children: [
+                            DrawerHeader(
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade700,
+                              ),
+                              child: const Text(
+                                "Menu",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 24),
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.home),
+                              title: const Text("Home"),
+                              onTap: () {
+                                Navigator.pop(context); // close drawer
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.shopping_bag),
+                              title: const Text("Products"),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+
+                            if (userRole == "admin")
+                              ListTile(
+                              leading: const Icon(Icons.add_box),
+                              title: const Text("Add Product"),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, "/addProduct");
+                              },
+                            ),
+                            if (userRole == "admin")
+                            ListTile(
+                              leading: const Icon(Icons.info),
+                              title: const Text("Product Details"),
+                              onTap: () {
+                                Navigator.pushNamed(context, "/productDetails");
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.settings),
+                              title: const Text("Settings"),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.logout),
+                              title: const Text("Logout"),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _logout(); // your existing logout function
+                              },
+                            ),
+                          ],
+                        );
+                      },
               ),
             ),
+            ),
+
+
+            body: Consumer<ProductProvider>(
+              builder: (context, productProvider, child) {
+                if (productProvider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (productProvider.errorMessage != null) {
+                  return Center(child: Text(productProvider.errorMessage!));
+                }
+
+                if (productProvider.products.isEmpty) {
+                  return const Center(child: Text("No products available"));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: productProvider.products.length,
+                  itemBuilder: (context, index) {
+                    final product = productProvider.products[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProductScreen(product: product),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: ListTile(
+                          leading: Image.network(
+                            product["imageUrl"] ?? "",
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+                          ),
+                          title: Text(product["name"] ?? "No name"),
+                          subtitle: Text("\$${product["price"] ?? 0}"),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
           );
         }
   }

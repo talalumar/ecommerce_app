@@ -8,18 +8,21 @@ class AuthProvider extends ChangeNotifier {
   String? _accessToken;
   String? _refreshToken;
   String? _userEmail;
+  String? _userRole;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   String? get accessToken => _accessToken;
   String? get refreshToken => _refreshToken;
   String? get userEmail => _userEmail;
+  String? get userRole => _userRole;
   bool get isLoggedIn => _accessToken != null;
 
   Future<void> loadUserFromStorage() async {
     _accessToken = await StorageService.getAccessToken();
     _refreshToken = await StorageService.getRefreshToken();
     _userEmail = await StorageService.getUserEmail();
+    _userRole = await StorageService.getUserRole();
     notifyListeners();
   }
 
@@ -42,6 +45,11 @@ class AuthProvider extends ChangeNotifier {
 
   void _setUserEmail(String email) {
     _userEmail = email;
+    notifyListeners();
+  }
+
+  void _setUserRole(String role) {
+    _userRole = role;
     notifyListeners();
   }
 
@@ -142,12 +150,14 @@ class AuthProvider extends ChangeNotifier {
         );
 
         _setUserEmail(email);
+        _setUserRole(result["data"]["role"]);
 
         await StorageService.saveTokens(
           accessToken: _accessToken!,
           refreshToken: _refreshToken!,
         );
         await StorageService.saveUserEmail(_userEmail!);
+        await StorageService.saveUserRole(_userRole!);
 
         _setError(null);
       } else {

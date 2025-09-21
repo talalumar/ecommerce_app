@@ -33,11 +33,22 @@ class StorageService {
       return await _storage.read(key: "userEmail");
 }
 
+// Save user role
+  static Future<void> saveUserRole(String userRole) async {
+    await _storage.write(key: "userRole", value: userRole);
+  }
+
+  // Get user role
+  static Future<String?> getUserRole() async {
+    return await _storage.read(key: "userRole");
+  }
+
   static Future<void> deleteTokens() async {
     await Future.wait([
       _storage.delete(key: "accessToken"),
       _storage.delete(key: "refreshToken"),
       _storage.delete(key: "userEmail"),
+      _storage.delete(key: "userRole"),
     ]);
   }
 
