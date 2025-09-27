@@ -17,6 +17,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String _name = '';
   String _desc = '';
   double _price = 0.0;
+  int _quantity = 0;
   File? _imageFile;
 
   final ImagePicker _picker = ImagePicker();
@@ -45,6 +46,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       name: _name,
       description: _desc,
       price: _price,
+      quantity: _quantity,
       imageFile: _imageFile!,
     );
 
@@ -56,7 +58,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Product added successfully!")),
       );
-      Navigator.pop(context); // Go back after saving
+      Navigator.pushReplacementNamed(context, '/home');
     }
   }
 
@@ -89,6 +91,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   validator: (value) =>
                   value!.isEmpty ? "Enter price" : null,
                   onSaved: (value) => _price = double.parse(value!),
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: "Quantity"),
+                  keyboardType: TextInputType.number,
+                  validator: (value) => value!.isEmpty ? "Enter quantity" : null,
+                  onSaved: (value) => _quantity = int.parse(value!),
                 ),
                 const SizedBox(height: 20),
 

@@ -1,8 +1,11 @@
+import 'package:client/screens/cart_screen.dart';
+
 import 'providers/product_provider.dart';
 import 'package:client/screens/wrapper_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/cart_provider.dart';
 
 import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
@@ -26,6 +29,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => authProvider),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: const MyApp(),
     ),
@@ -55,6 +59,7 @@ class MyApp extends StatelessWidget {
         '/reset-password': (context) => const ResetPasswordScreen(),
         "/addProduct": (context) => const AddProductScreen(),
         "/manageProducts": (_) => const ManageProductsScreen(),
+        "/cart": (_) => const CartScreen(),
       },
     );
   }

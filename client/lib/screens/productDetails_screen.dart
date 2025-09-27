@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/cart_provider.dart';
+import '../providers/auth_provider.dart';
 import 'buynow_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> product;
 
   const ProductDetailsScreen({super.key, required this.product});
+
+  void _handleAddToCart(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+    final cartProvider = context.read<CartProvider>();
+
+    await cartProvider.addProductToCart(
+      authProvider.accessToken!,
+      product["_id"],
+      1,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(cartProvider.message ?? "Something went wrong")),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +77,8 @@ class ProductDetailsScreen extends StatelessWidget {
                     backgroundColor: Colors.orange,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Added to Cart")),
-                    );
-                  },
+                  onPressed: () => _handleAddToCart(context),
+
                   icon: const Icon(Icons.shopping_cart),
                   label: const Text("Add to Cart"),
                 ),

@@ -1,9 +1,12 @@
+import 'package:client/screens/cart_screen.dart';
 import 'package:client/screens/manageProducts_screen.dart';
 import 'package:client/screens/productDetails_screen.dart';
 import 'package:client/screens/products_screen.dart';
+import 'package:client/utils/cart_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/cart_provider.dart';
 import '../providers/product_provider.dart';
 import 'addProduct_screen.dart';
 
@@ -47,8 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    final token = context.read<AuthProvider>().accessToken!;
     Future.microtask(() {
       context.read<ProductProvider>().fetchProducts();
+      context.read<CartProvider>().fetchCart(token);
     });
   }
 
@@ -58,13 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: const Text("Ecommerce App"),
               backgroundColor: Colors.blue.shade700,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    _logout();
-                  },
-                ),
+              actions: const [
+                CartIcon(),
               ],
             ),
 

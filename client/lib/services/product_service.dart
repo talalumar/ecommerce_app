@@ -10,6 +10,7 @@ class ProductService {
     required String name,
     required String description,
     required double price,
+    required int quantity,
     required File imageFile,
   }) async {
     try {
@@ -21,6 +22,7 @@ class ProductService {
         ..fields["name"] = name
         ..fields["description"] = description
         ..fields["price"] = price.toString()
+        ..fields["quantity"] = quantity.toString()
         ..files.add(await http.MultipartFile.fromPath(
           "imageFile", // make sure field name matches backend schema
           imageFile.path,

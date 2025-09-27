@@ -35,6 +35,7 @@ class ProductProvider with ChangeNotifier {
     required String name,
     required String description,
     required double price,
+    required int quantity,
     required File imageFile,
   }) async {
     _isLoading = true;
@@ -45,6 +46,7 @@ class ProductProvider with ChangeNotifier {
       name: name,
       description: description,
       price: price,
+      quantity: quantity,
       imageFile: imageFile,
     );
 

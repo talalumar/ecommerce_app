@@ -7,10 +7,10 @@ import { v2 as cloudinary } from "cloudinary";
 
 // Create Product
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, price, description } = req.body;
+  const { name, price, description, quantity } = req.body;
 
-  if (!name || !price || !description) {
-    throw new ApiError(400, "All fields (name, price, description) are required");
+  if (!name || !price || !description || !quantity) {
+    throw new ApiError(400, "All fields (name, price, description, quantity) are required");
   }
 
   if (!req.file) {
@@ -29,6 +29,7 @@ const createProduct = asyncHandler(async (req, res) => {
     name,
     price,
     description,
+    quantity,
     imageUrl: cloudinaryResult.secure_url,
     imagePublicId: cloudinaryResult.public_id,
   });
