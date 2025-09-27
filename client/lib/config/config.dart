@@ -1,4 +1,4 @@
-final baseUrl = 'http://192.168.1.12:2000/api/v1';
+final baseUrl = 'http://192.168.1.16:2000/api/v1';
 
 final registerRequest = '$baseUrl/users/register/request';
 final registerVerify = '$baseUrl/users/register/verify';

@@ -1,93 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/product_provider.dart';
-import '../services/product_service.dart';
-import 'editProduct_screen.dart';
 
-class ProductDetailsScreen extends StatefulWidget {
-  const ProductDetailsScreen({super.key});
+import 'buynow_screen.dart';
 
-  @override
-  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
-}
+class ProductDetailsScreen extends StatelessWidget {
+  final Map<String, dynamic> product;
 
-class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      context.read<ProductProvider>().fetchProducts();
-    });
-  }
-
-  void _deleteProduct(String productId) async {
-    final productProvider = context.read<ProductProvider>();
-    final success = await productProvider.deleteProduct(productId);
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Deleted successfully")),
-      );
-    } else {
-      final error = productProvider.errorMessage ?? "Delete failed";
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
-    }
-  }
-
+  const ProductDetailsScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
-    final productProvider = context.watch<ProductProvider>();
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Product Details (Admin)"),
+        title: Text(product["name"] ?? "Product Detail"),
         backgroundColor: Colors.blue.shade700,
       ),
-      body: productProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : productProvider.products.isEmpty
-          ? const Center(child: Text("No products available"))
-          : ListView.builder(
-        itemCount: productProvider.products.length,
-        itemBuilder: (context, index) {
-          final product = productProvider.products[index];
-          return Card(
-            margin: const EdgeInsets.all(8),
-            child: ListTile(
-              leading: Image.network(
-                product["imageUrl"],
-                width: 60,
-                height: 60,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                product["imageUrl"] ?? "",
+                width: double.infinity,
+                height: 250,
                 fit: BoxFit.cover,
               ),
-              title: Text(product["name"]),
-              subtitle: Text("Price: \$${product["price"]}"),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditProductScreen(product: product),
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteProduct(product["_id"]),
-                  ),
-                ],
-              ),
             ),
-          );
-        },
+            const SizedBox(height: 20),
+
+            // Name & Price
+            Text(
+              product["name"] ?? "",
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "\$${product["price"]}",
+              style: TextStyle(fontSize: 20, color: Colors.green.shade700),
+            ),
+            const SizedBox(height: 20),
+
+            // Description
+            Text(
+              product["description"] ?? "",
+              style: const TextStyle(fontSize: 16, height: 1.4),
+            ),
+            const SizedBox(height: 40),
+
+            // Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Added to Cart")),
+                    );
+                  },
+                  icon: const Icon(Icons.shopping_cart),
+                  label: const Text("Add to Cart"),
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BuyNowScreen(product: product),
+                      ),
+                    );
+                  },
+
+                  icon: const Icon(Icons.payment),
+                  label: const Text("Buy Now"),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

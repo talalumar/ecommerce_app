@@ -1,8 +1,11 @@
-import 'package:client/screens/product_screen.dart';
+import 'package:client/screens/manageProducts_screen.dart';
+import 'package:client/screens/productDetails_screen.dart';
+import 'package:client/screens/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/product_provider.dart';
+import 'addProduct_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedPage = 0;
 
   void _logout() async {
     final auth = context.read<AuthProvider>();
@@ -25,6 +29,19 @@ class _HomeScreenState extends State<HomeScreen> {
         SnackBar(content: Text(error)),
       );
     }
+  }
+
+  final List<Widget> _pages = [
+    const ProductsScreen(),
+    const AddProductScreen(),
+    const ManageProductsScreen(),
+  ];
+
+  void _onDrawerItemTap(int index) {
+    setState(() {
+      _selectedPage = index;
+    });
+    Navigator.pop(context);
   }
 
   @override
@@ -75,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               leading: const Icon(Icons.home),
                               title: const Text("Home"),
                               onTap: () {
-                                Navigator.pop(context); // close drawer
+                                _onDrawerItemTap(0);
                               },
                             ),
                             ListTile(
@@ -91,16 +108,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               leading: const Icon(Icons.add_box),
                               title: const Text("Add Product"),
                               onTap: () {
-                                Navigator.pop(context);
-                                Navigator.pushNamed(context, "/addProduct");
+                                _onDrawerItemTap(1);
                               },
                             ),
                             if (userRole == "admin")
                             ListTile(
                               leading: const Icon(Icons.info),
-                              title: const Text("Product Details"),
+                              title: const Text("Manage Products"),
                               onTap: () {
-                                Navigator.pushNamed(context, "/productDetails");
+                                _onDrawerItemTap(2);
                               },
                             ),
                             ListTile(
@@ -115,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               title: const Text("Logout"),
                               onTap: () {
                                 Navigator.pop(context);
-                                _logout(); // your existing logout function
+                                _logout();
                               },
                             ),
                           ],
@@ -126,55 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
 
-            body: Consumer<ProductProvider>(
-              builder: (context, productProvider, child) {
-                if (productProvider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (productProvider.errorMessage != null) {
-                  return Center(child: Text(productProvider.errorMessage!));
-                }
-
-                if (productProvider.products.isEmpty) {
-                  return const Center(child: Text("No products available"));
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: productProvider.products.length,
-                  itemBuilder: (context, index) {
-                    final product = productProvider.products[index];
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ProductScreen(product: product),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: ListTile(
-                          leading: Image.network(
-                            product["imageUrl"] ?? "",
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
-                          ),
-                          title: Text(product["name"] ?? "No name"),
-                          subtitle: Text("\$${product["price"] ?? 0}"),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+            body: _pages[_selectedPage],
 
           );
         }

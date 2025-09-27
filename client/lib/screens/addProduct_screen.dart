@@ -64,12 +64,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     final isLoading = context.watch<ProductProvider>().isLoading;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add Product"),
-        backgroundColor: Colors.blue.shade700,
-      ),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Form(
@@ -127,7 +122,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 }

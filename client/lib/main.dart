@@ -12,7 +12,7 @@ import 'screens/home_screen.dart';
 import 'screens/forgotPassword_screen.dart';
 import 'screens/resetPassword_screen.dart';
 import 'screens/addProduct_screen.dart';
-import 'screens/productDetails_screen.dart';
+import 'screens/manageProducts_screen.dart';
 
 
 void main() async {
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/reset-password': (context) => const ResetPasswordScreen(),
         "/addProduct": (context) => const AddProductScreen(),
-        "/productDetails": (_) => const ProductDetailsScreen(),
+        "/manageProducts": (_) => const ManageProductsScreen(),
       },
     );
   }
