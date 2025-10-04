@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: const Text("Ecommerce App"),
               backgroundColor: Colors.blue.shade700,
+              foregroundColor: Colors.white,
               actions: const [
                 CartIcon(),
               ],

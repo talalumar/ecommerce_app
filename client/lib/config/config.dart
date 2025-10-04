@@ -21,3 +21,6 @@ final updateCart = '$baseUrl/cart';
 final deleteCart = '$baseUrl/cart';
 
 final createPayment = '$baseUrl/payment/create-payment-intent';
+
+
+final stripePublisedKey="pk_test_51SBRBlKExzHksQbn0iunVZxhHpZDIVlfWEC8ejUeOdnWK6bfnrUlLpBRkbMMkpniY9d37Oa8aEc2Jh58AcTiWwQi00rdb3vacj";

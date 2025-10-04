@@ -1,3 +1,5 @@
+import 'package:client/config/config.dart';
+
 import 'providers/product_provider.dart';
 import 'package:client/screens/wrapper_screen.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +26,7 @@ void main() async {
   final authProvider = AuthProvider();
   await authProvider.loadUserFromStorage();
 
-  Stripe.publishableKey = "pk_test_51SBRBlKExzHksQbn0iunVZxhHpZDIVlfWEC8ejUeOdnWK6bfnrUlLpBRkbMMkpniY9d37Oa8aEc2Jh58AcTiWwQi00rdb3vacj";
+  Stripe.publishableKey = stripePublisedKey;
   await Stripe.instance.applySettings();
 
   runApp(
