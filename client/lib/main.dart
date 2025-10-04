@@ -1,11 +1,10 @@
-import 'package:client/screens/cart_screen.dart';
-
 import 'providers/product_provider.dart';
 import 'package:client/screens/wrapper_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
@@ -16,6 +15,7 @@ import 'screens/forgotPassword_screen.dart';
 import 'screens/resetPassword_screen.dart';
 import 'screens/addProduct_screen.dart';
 import 'screens/manageProducts_screen.dart';
+import 'screens/cart_screen.dart';
 
 
 void main() async {
@@ -23,6 +23,9 @@ void main() async {
 
   final authProvider = AuthProvider();
   await authProvider.loadUserFromStorage();
+
+  Stripe.publishableKey = "pk_test_51SBRBlKExzHksQbn0iunVZxhHpZDIVlfWEC8ejUeOdnWK6bfnrUlLpBRkbMMkpniY9d37Oa8aEc2Jh58AcTiWwQi00rdb3vacj";
+  await Stripe.instance.applySettings();
 
   runApp(
     MultiProvider(

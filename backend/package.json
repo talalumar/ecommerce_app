@@ -5,14 +5,19 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon -r dotenv/config src/index.js"
-  },
+  "start": "node server.js",
+  "dev": "concurrently \"npm run backend\" \"npm run stripe\"",
+  "backend": "nodemon -r dotenv/config src/index.js",
+  "stripe": "stripe listen --forward-to http://192.168.1.8:2000/api/payment/webhook"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@upstash/redis": "^1.35.3",
     "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
@@ -25,6 +30,7 @@
     "stripe": "^18.5.0"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
   }

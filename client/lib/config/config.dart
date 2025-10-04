@@ -1,4 +1,4 @@
-final baseUrl = 'http://192.168.1.11:2000/api/v1';
+final baseUrl = 'http://192.168.1.8:2000/api/v1';
 
 final registerRequest = '$baseUrl/users/register/request';
 final registerVerify = '$baseUrl/users/register/verify';
@@ -20,3 +20,4 @@ final getCart = '$baseUrl/cart';
 final updateCart = '$baseUrl/cart';
 final deleteCart = '$baseUrl/cart';
 
+final createPayment = '$baseUrl/payment/create-payment-intent';

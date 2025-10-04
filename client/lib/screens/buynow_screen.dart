@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../services/payment_service.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' hide Card;
 
 class BuyNowScreen extends StatefulWidget {
-  final Map<String, dynamic> product;
+  final List<Map<String, dynamic>> cartItems;
 
-  const BuyNowScreen({super.key, required this.product});
+  const BuyNowScreen({super.key, required this.cartItems});
 
   @override
   State<BuyNowScreen> createState() => _BuyNowScreenState();
@@ -15,28 +19,83 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
   String _phone = '';
   String _paymentMethod = 'cod'; // default: Cash on Delivery
 
-  void _placeOrder() {
+  double get totalAmount {
+    return widget.cartItems.fold(
+      0.0,
+          (sum, item) => sum + (item["price"] * item["quantity"]),
+    );
+  }
+
+  void _placeOrder() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
-    String paymentText =
-    _paymentMethod == "cod" ? "Cash on Delivery" : "Credit/Debit Card";
+    if (_paymentMethod == "cod") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Order placed with Cash on Delivery ")),
+      );
+      Navigator.pop(context);
+      return;
+    }
 
-    // Later: If credit card -> integrate Stripe here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Order placed with $paymentText!")),
-    );
+    if (_paymentMethod == "card") {
+      try {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final token = authProvider.accessToken!;
 
-    Navigator.pop(context); // Go back after order
+        // Convert items into format backend expects
+        final cartItemsForBackend = widget.cartItems.map((item) {
+          return {
+            "productId": item["_id"],
+            "price": item["price"],
+            "quantity": item["quantity"] ?? 1,
+          };
+        }).toList();
+
+        // Call backend to create PaymentIntent
+        final response = await PaymentService.createPaymentIntent(
+          token,
+          cartItemsForBackend,
+        );
+
+        // Some backends return a Map or a JSON-decoded object
+        final clientSecret = response["clientSecret"] ?? response["client_secret"];
+
+        if (clientSecret == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to start payment ")),
+          );
+          return;
+        }
+
+        await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+            paymentIntentClientSecret: clientSecret,
+            merchantDisplayName: "MyShop",
+          ),
+        );
+
+        await Stripe.instance.presentPaymentSheet();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Payment Successful ")),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Payment Failed  $e")),
+        );
+      }
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
-    final product = widget.product;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Buy Now"),
+        title: const Text("Checkout"),
         backgroundColor: Colors.blue.shade700,
       ),
       body: Padding(
@@ -45,29 +104,39 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product Info
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 3,
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      product["imageUrl"] ?? "",
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
+              // 🛍️ List of Products
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: widget.cartItems.length,
+                itemBuilder: (context, index) {
+                  final item = widget.cartItems[index];
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                  title: Text(product["name"] ?? ""),
-                  subtitle: Text("\$${product["price"]}"),
-                ),
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          item["imageUrl"] ?? "",
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      title: Text(item["name"]),
+                      subtitle: Text(
+                          "\$${item["price"]} × ${item["quantity"]} = \$${(item["price"] * item["quantity"]).toStringAsFixed(2)}"),
+                    ),
+                  );
+                },
               ),
+
               const SizedBox(height: 20),
 
-              // Form for address & phone
               Form(
                 key: _formKey,
                 child: Column(
@@ -98,7 +167,7 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
               ),
               const SizedBox(height: 30),
 
-              // Payment Method
+              // 💳 Payment Method
               const Text(
                 "Select Payment Method",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -123,17 +192,17 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 30),
 
-              // Total Price
+              const SizedBox(height: 20),
+
               Text(
-                "Total: \$${product["price"]}",
-                style: const TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.bold),
+                "Total: \$${totalAmount.toStringAsFixed(2)}",
+                style:
+                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
-              // Place Order button
+              // Place Order Button
               Center(
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(

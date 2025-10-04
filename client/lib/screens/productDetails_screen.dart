@@ -91,10 +91,18 @@ class ProductDetailsScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => BuyNowScreen(product: product),
+                        builder: (_) => BuyNowScreen(
+                          cartItems: [
+                            {
+                              ...product,
+                              "quantity": 1,
+                            }
+                          ],
+                        ),
                       ),
                     );
                   },
+
 
                   icon: const Icon(Icons.payment),
                   label: const Text("Buy Now"),

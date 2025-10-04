@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import 'buynow_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -123,11 +124,36 @@ class _CartScreenState extends State<CartScreen> {
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Proceeding to checkout...")),
+            final cartProvider = Provider.of<CartProvider>(context, listen: false);
+            final cartItems = cartProvider.cartItems;
+
+            if (cartItems.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Your cart is empty.")),
+              );
+              return;
+            }
+
+            final formattedItems = cartItems.map<Map<String, dynamic>>((item) {
+              final product = item["productId"];
+              return {
+                "_id": product["_id"],
+                "name": product["name"],
+                "imageUrl": product["imageUrl"],
+                "price": product["price"],
+                "quantity": item["quantity"],
+              };
+            }).toList();
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BuyNowScreen(cartItems: formattedItems),
+              ),
             );
-            // TODO: Navigate to BuyNow/Checkout screen
           },
+
+
           child: Text(
             "Checkout (\$${cartProvider.totalAmount.toStringAsFixed(2)})",
             style: const TextStyle(fontSize: 18),
