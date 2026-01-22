@@ -33,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: Consumer<AuthProvider>(
           builder: (context, auth, child) {
@@ -43,26 +44,26 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 40),
               // Logo
-              Center(
-                child: Icon(Icons.shopping_bag,
-                    size: 60, color: Colors.blue.shade700),
-              ),
-              const SizedBox(height: 30),
+              // Center(
+              //   child: Icon(Icons.shopping_bag,
+              //       size: 60, color: Colors.blue.shade700),
+              // ),
+              // const SizedBox(height: 30),
 
               // Welcome Text
               const Text(
-                "Welcome back,",
+                "Login ",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 30),
               const Text(
                 "Discover Limitless Choices and Unmatched Convenience.",
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 50),
 
               // Email Input
               TextField(
@@ -115,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.pushNamed(context, '/forgot-password');
                     },
-                    child: const Text("Forgot Password?"),
+                    child: const Text("Forgot Password?", style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
@@ -130,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    backgroundColor: Colors.blue.shade700,
+                    backgroundColor: Colors.black,
                   ),
                   onPressed: auth.isLoading
                       ? null
@@ -160,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.pushNamed(context, '/register');
                   },
-                  child: const Text("Create Account"),
+                  child: const Text("Create Account", style: TextStyle(color: Colors.black),),
                 ),
               ),
             ],

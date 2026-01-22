@@ -44,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -55,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Logo
               Center(
                 child: Icon(Icons.person_add_alt_1,
-                    size: 60, color: Colors.blue.shade700),
+                    size: 60, color: Colors.black),
               ),
               const SizedBox(height: 30),
 
@@ -140,10 +141,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        backgroundColor: Colors.blue.shade700,
+                        backgroundColor: Colors.black,
                       ),
                       child: auth.isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? const CircularProgressIndicator(color: Colors.black)
                           : const Text(
                         "Continue",
                         style: TextStyle(fontSize: 16, color: Colors.white),

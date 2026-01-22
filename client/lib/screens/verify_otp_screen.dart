@@ -88,6 +88,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     final email = args?["email"] ?? "";
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -148,12 +149,12 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                     child: ElevatedButton(
                       onPressed: auth.isLoading ? null : () => _verifyOtp(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade700,
+                        backgroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: auth.isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text("Verify", style: TextStyle(color: Colors.white)),
+                          : const Text("Verify", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                     ),
                   );
                 },

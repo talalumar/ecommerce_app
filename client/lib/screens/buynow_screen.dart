@@ -94,9 +94,11 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Checkout"),
-        backgroundColor: Colors.blue.shade700,
+        title: const Text("Checkout", style: TextStyle(fontWeight: FontWeight.w600),),
+        backgroundColor: Colors.grey[100],
+        foregroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -112,6 +114,7 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
                 itemBuilder: (context, index) {
                   final item = widget.cartItems[index];
                   return Card(
+                    color: Colors.grey[100],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -206,7 +209,7 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
               Center(
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -214,8 +217,8 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
                     ),
                   ),
                   onPressed: _placeOrder,
-                  icon: const Icon(Icons.check),
-                  label: const Text("Place Order"),
+                  // icon: const Icon(Icons.check, color: Colors.white,),
+                  label: const Text("Confirm", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
                 ),
               ),
             ],

@@ -68,9 +68,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Edit Product"),
-        backgroundColor: Colors.blue,
+        title: const Text("Edit Product", style: TextStyle(fontWeight: FontWeight.w600),),
+        backgroundColor: Colors.grey[100],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -98,18 +99,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
               _imageFile != null
                   ? Image.file(_imageFile!, height: 150, fit: BoxFit.cover)
                   : widget.product["imageUrl"] != null
-                  ? Image.network(widget.product["imageUrl"], height: 150, fit: BoxFit.cover)
+                  ? Image.network(widget.product["imageUrl"], height: 300, fit: BoxFit.cover)
                   : const SizedBox.shrink(),
               TextButton.icon(
-                icon: const Icon(Icons.image),
-                label: const Text("Change Image"),
+                icon: const Icon(Icons.image, color: Colors.black,),
+                label: const Text("Change Image", style: TextStyle(color: Colors.black),),
                 onPressed: _pickImage,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _updateProduct,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: const Text("Update Product"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                child: const Text("Update Product", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
               ),
             ],
           ),
