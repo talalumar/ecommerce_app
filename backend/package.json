@@ -5,10 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "start": "node server.js",
-  "dev": "concurrently \"npm run backend\" \"npm run stripe\"",
-  "backend": "nodemon -r dotenv/config src/index.js",
-  "stripe": "stripe listen --forward-to http://192.168.1.8:2000/api/payment/webhook"
+  "start": "node src/index.js",
+  "dev": "nodemon -r dotenv/config src/index.js"
 },
 
   "keywords": [],
