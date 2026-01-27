@@ -50,7 +50,7 @@ const requestRegister = asyncHandler(async (req, res) => {
   await redis.set(key, payload, { ex: OTP_TTL });
 
   // send OTP to user email
-  // await sendOtpEmail(email, name, otp);
+  await sendOtpEmail(email, name, otp);
 
   return res.status(200).json(new ApiResponse(200, null, "OTP sent to email"));
 });
